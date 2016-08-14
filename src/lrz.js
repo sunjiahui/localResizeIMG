@@ -36,8 +36,12 @@ function Lrz (file, opts) {
     that.defaults = {
         width    : null,
         height   : null,
+        minWidth : null,
+        minHeight: null,
+        customSize: null,
         fieldName: 'file',
-        quality  : 0.7
+        quality  : 0.7,
+        wxLocalFile: false
     };
 
     that.file = file;
@@ -119,7 +123,7 @@ Lrz.prototype.init = function () {
         };
 
         // 如果传入的是base64在移动端会报错
-        !fileIsBase64 && (img.crossOrigin = "*");
+        !fileIsBase64 && !that.wxLocalFile && (img.crossOrigin = "*");
 
         img.src = blob;
     });
@@ -260,6 +264,82 @@ Lrz.prototype._createBase64 = function () {
     });
 };
 
+Lrz.prototype._getMaxSize = function (w, h, option) {
+    var ret = {width: w, height: h};
+    var width = option.width;
+    var height = option.height;
+    // 如果原图小于设定，采用原图
+    if (ret.width < width || ret.height < height) {
+        return ret;
+    }
+
+    var scale = ret.width / ret.height;
+
+    if (width && height) {
+        if (scale >= width / height) {
+            if (ret.width > width) {
+                ret.width  = width;
+                ret.height = Math.ceil(width / scale);
+            }
+        } else {
+            if (ret.height > height) {
+                ret.height = height;
+                ret.width  = Math.ceil(height * scale);
+            }
+        }
+    }
+    else if (width) {
+        if (width < ret.width) {
+            ret.width  = width;
+            ret.height = Math.ceil(width / scale);
+        }
+    }
+    else if (height) {
+        if (height < ret.height) {
+            ret.width  = Math.ceil(height * scale);
+            ret.height = height;
+        }
+    }
+    // 超过这个值base64无法生成，在IOS上
+    while (ret.width >= 3264 || ret.height >= 2448) {
+        ret.width *= 0.8;
+        ret.height *= 0.8;
+    }
+    return ret;
+};
+
+Lrz.prototype._getMinSize = function (w, h, option) {
+    var ret = {width: w, height: h};
+    var width = option.minWidth;
+    var height = option.minHeight;
+    // 如果原图小于设定，采用原图
+    var scale = ret.width / ret.height;
+
+    if (width && height) {
+        if (scale >= width / height) {
+            ret.height  = height;
+            ret.width = Math.ceil(ret.height * scale);
+        } else {
+            ret.width = width;
+            ret.height = Math.ceil(ret.width / scale);
+        }
+    }
+    else if (width) {
+        ret.width = width;
+        ret.height = Math.ceil(ret.width / scale);
+    }
+    else if (height) {
+        ret.height  = height;
+        ret.width = Math.ceil(ret.height * scale);
+    }
+    // 超过这个值base64无法生成，在IOS上
+    while (ret.width >= 3264 || ret.height >= 2448) {
+        ret.width *= 0.8;
+        ret.height *= 0.8;
+    }
+    return ret;
+};
+
 Lrz.prototype._getResize = function () {
     var that        = this,
         img         = that.img,
@@ -276,6 +356,13 @@ Lrz.prototype._getResize = function () {
     if ("5678".indexOf(orientation) > -1) {
         ret.width  = img.height;
         ret.height = img.width;
+    }
+    if (width || height) {
+        ret = this._getMaxSize(ret.width, ret.height, defaults);
+    } else if (defaults.minWidth || defaults.minHeight) {
+        ret = this._getMinSize(ret.width, ret.height, defaults);
+    } else if (defaults.customSize) {
+        ret = defaults.customSize(ret.width, ret.height, defaults);
     }
 
     // 如果原图小于设定，采用原图

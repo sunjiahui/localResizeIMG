@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/think2011/localResizeIMG.git"
+    "url": "https://github.com/sunjiahui/localResizeIMG.git"
   },
   "keywords": [
     "lrz",
@@ -18,7 +18,7 @@
     "压缩图片"
   ],
   "bugs": {
-    "url": "https://github.com/think2011/localResizeIMG/issues"
+    "url": "https://github.com/sunjiahui/localResizeIMG/issues"
   },
   "author": "think2011",
   "license": "MIT",
