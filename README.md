@@ -3,6 +3,9 @@
 [![npm](https://img.shields.io/npm/l/express.svg)]()
 
 # 重要!!
+基于https://github.com/think2011/localResizeIMG做了调整
+1. 添加参数imageType, 指定导出的图片类型，仅支持png、jpeg，默认为jpeg
+1. 添加参数reserveOpacity, 保留png图片的透明,默认为false
 
 挺忙的，暂时没有精力维护这个项目，使用之前请一定留意 [Issues](https://github.com/think2011/localResizeIMG/issues?q=is%3Aissue+is%3Aopen+label%3Abug) 里已知的问题
 
@@ -26,7 +29,7 @@
     * 图片扭曲、某些设备不自动旋转图片方向，没有jpeg压缩算法..
     * 不支持new Blob,formData构造的文件size为0..
     * 还有某些机型和浏览器（例如QQX5浏览器）莫名其妙的BUG..
-    
+
 2. 按需加载（会根据对应设备自动异步载入JS文件，节省不必要带宽）
 
 3. 原生JS编写，不依赖例如`jquery`等第三方库，支持AMD or CMD规范。
