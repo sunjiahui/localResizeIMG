@@ -4,7 +4,9 @@
 
 # 重要!!
 基于https://github.com/think2011/localResizeIMG做了调整
+
 1. 添加参数imageType, 指定导出的图片类型，仅支持png、jpeg，默认为jpeg
+
 1. 添加参数reserveOpacity, 保留png图片的透明,默认为false
 
 挺忙的，暂时没有精力维护这个项目，使用之前请一定留意 [Issues](https://github.com/think2011/localResizeIMG/issues?q=is%3Aissue+is%3Aopen+label%3Abug) 里已知的问题
