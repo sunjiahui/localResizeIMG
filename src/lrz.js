@@ -41,7 +41,9 @@ function Lrz (file, opts) {
         customSize: null,
         fieldName: 'file',
         quality  : 0.7,
-        wxLocalFile: false
+        wxLocalFile: false,
+        imageType: 'jpeg',
+        reserveOpacity: false,
     };
 
     that.file = file;
@@ -123,7 +125,7 @@ Lrz.prototype.init = function () {
         };
 
         // 如果传入的是base64在移动端会报错
-        !fileIsBase64 && !that.wxLocalFile && (img.crossOrigin = "*");
+        !fileIsBase64 && !that.defaults.wxLocalFile && (img.crossOrigin = "*");
 
         img.src = blob;
     });
@@ -131,6 +133,7 @@ Lrz.prototype.init = function () {
 
 Lrz.prototype._getBase64 = function () {
     var that   = this,
+        defaults    = that.defaults,
         img    = that.img,
         file   = that.file,
         canvas = that.canvas;
@@ -148,8 +151,10 @@ Lrz.prototype._getBase64 = function () {
                 canvas.height = that.resize.height;
 
                 // 设置为白色背景，jpg是不支持透明的，所以会被默认为canvas默认的黑色背景。
-                that.ctx.fillStyle = '#fff';
-                that.ctx.fillRect(0, 0, canvas.width, canvas.height);
+                if (!defaults.reserveOpacity) {
+                    that.ctx.fillStyle = '#fff';
+                    that.ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
 
                 // 根据设备对应处理方式
                 if (UA.oldIOS) {
@@ -192,7 +197,7 @@ Lrz.prototype._createBase64ForOldIOS = function () {
                 });
             }
 
-            resolve(canvas.toDataURL('image/jpeg', defaults.quality));
+            resolve(canvas.toDataURL('image/' + defaults.imageType, defaults.quality));
         });
     });
 };
@@ -250,7 +255,9 @@ Lrz.prototype._createBase64 = function () {
     }
 
     return new Promise(function (resolve) {
-        if (UA.oldAndroid || UA.mQQBrowser || !navigator.userAgent) {
+        if (defaults.imageType == 'png') {
+            resolve(canvas.toDataURL('image/png'));
+        } else if (UA.oldAndroid || UA.mQQBrowser || !navigator.userAgent) {
             require(['jpeg_encoder_basic'], function (JPEGEncoder) {
                 var encoder = new JPEGEncoder(),
                     img     = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -259,7 +266,7 @@ Lrz.prototype._createBase64 = function () {
             })
         }
         else {
-            resolve(canvas.toDataURL('image/jpeg', defaults.quality));
+            resolve(canvas.toDataURL('image/' + defaults.imageType, defaults.quality));
         }
     });
 };
@@ -485,5 +492,3 @@ module.exports = window.lrz;
  * 　　　　　┗┻┛　┗┻┛
  *
  */
-
-

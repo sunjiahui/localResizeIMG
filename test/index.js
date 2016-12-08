@@ -37,7 +37,8 @@ document.querySelector('input').addEventListener('change', function () {
     var that = this;
 
     lrz(that.files[0], {
-        width: 800
+        width: 800,
+        wxLocalFile: true,
     })
         .then(function (rst) {
             var img = new Image(),
